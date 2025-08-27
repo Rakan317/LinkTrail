@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LinkTrail</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    input { width: 400px; }
+  </style>
+</head>
+<body>
+  <h1>LinkTrail</h1>
+  <input type="text" id="urlInput" placeholder="Enter a URL" />
+  <button id="analyzeBtn">Analyze</button>
+  <ol id="results"></ol>
+  <script>
+    document.getElementById('analyzeBtn').addEventListener('click', async () => {
+      const url = document.getElementById('urlInput').value.trim();
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+      if (!url) return;
+      try {
+        const res = await fetch('/api/trace?url=' + encodeURIComponent(url));
+        const data = await res.json();
+        if (data.chain) {
+          data.chain.forEach(link => {
+            const li = document.createElement('li');
+            li.textContent = link;
+            results.appendChild(li);
+          });
+        } else {
+          results.textContent = data.error || 'Error';
+        }
+      } catch (err) {
+        results.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
